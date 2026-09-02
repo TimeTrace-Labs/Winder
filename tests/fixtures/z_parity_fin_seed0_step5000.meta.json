@@ -1,0 +1,26 @@
+{
+  "git_sha": "a62f7945353e06d8f722b7f6675f4429ccb0164b",
+  "checkpoint_dir": "artifacts/roster/FIN_seed0/checkpoint_step5000",
+  "checkpoint_state_sha256": "b88d2eedd4ad7d72f31b940f14d30d987f29e15944e28fe2f52c287ae048c50c",
+  "ecg_ids": [
+    8,
+    10,
+    26,
+    28,
+    30,
+    39,
+    41,
+    47
+  ],
+  "z_shape": [
+    8,
+    125,
+    256
+  ],
+  "theta_finite_fraction": 0.9169999957084656,
+  "z_abs_mean": 0.5785478353500366,
+  "z_abs_max": 5.738719940185547,
+  "device": "cpu",
+  "dtype": "float32",
+  "torch_version": "2.11.0+cu128"
+}

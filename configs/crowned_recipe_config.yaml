@@ -1,0 +1,70 @@
+jepa:
+  n_leads: 12
+  n_samples: 1000
+  n_tokens: 125
+  lambda_sig: 0.1
+  seed_pretrain: 0
+  seed_probe: 0
+  encoder_name: conv_trunk
+  encoder: {}
+  projector_name: mlp
+  projector: {}
+  predictor_name: transformer
+  predictor:
+    n_layers: 4
+  mask_sampler_name: causal_block
+  mask_sampler: {}
+  prediction_loss_name: mse
+  prediction_loss: {}
+  regularizer_name: sigreg
+  regularizer: {}
+train:
+  n_steps: 30000
+  lr: 0.0003
+  betas:
+  - 0.9
+  - 0.95
+  eps: 1.0e-08
+  weight_decay: 0.0001
+  warmup_steps: 5
+  min_lr: 1.0e-06
+  grad_clip_norm: 1.0
+  lambda_sig: 0.15
+  lambda_pred: 1.0
+  lambda_trans: 1.0
+  lambda_sig_record: 0.0
+  transport_radial_weight: 0.0
+  transport_stop_gradient: false
+  sigreg_frame: raw
+  augment: gauss,powerline,wander,ampmod,leaddrop,leadgain
+  augment_prob: 0.5
+  seed_pretrain: 0
+  log_every: 1
+arm:
+  name: cyclic_seed0
+  seed: 0
+  operator_name: cyclic
+  operator:
+    k0: 4
+    n_j:
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    - 7
+    - 8
+    - 9
+    - 10
+    k_j:
+    - 24
+    - 24
+    - 20
+    - 16
+    - 12
+    - 10
+    - 8
+    - 6
+    - 4
+    - 2

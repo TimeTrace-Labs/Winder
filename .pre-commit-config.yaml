@@ -1,0 +1,35 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-added-large-files
+        args: ["--maxkb=500"]
+        # tests/fixtures/ holds a small (~1MB) npz golden fixture used to validate this
+        # reimplementation against the reference repo's published numbers -- it legitimately
+        # exceeds the code-oriented cap. The 500 KB guard stays for everything else.
+        exclude: ^tests/fixtures/
+
+  # Pinned to the SAME ruff the project's own dev dependency group resolves to (see uv.lock).
+  # Bump both together when either moves, so `uv run ruff format` and this hook never disagree.
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.1
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  # local, not mirrors-mypy: mirrors-mypy runs in an isolated per-hook environment and passes
+  # only the changed filenames, which would miss cross-imports between scripts/ and src/winder.
+  # Using the project's own uv-managed venv against the full src+tests+scripts tree, every time,
+  # closes that gap.
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy
+        entry: uv run mypy src tests scripts
+        language: system
+        pass_filenames: false
+        types: [python]

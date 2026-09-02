@@ -1,0 +1,106 @@
+[project]
+name = "winder-nominal"
+version = "1.0.0"
+description = "Winder: a phase-equivariant self-supervised model of the 12-lead ECG. Companion code to arXiv:2608.21147."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+    { name = "Blaise Delaney" },
+    { name = "Dominic Dootson" },
+    { name = "Juan Jose Juan Castella" },
+    { name = "Salil Patel" },
+    { name = "Andrew Pfaff" },
+    { name = "Yuji Xing" },
+    { name = "Jonny Hancox" },
+    { name = "Karin Sevegnani" },
+]
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "torch==2.11.0",
+    "numpy>=1.26",
+    "scipy>=1.11",
+    "omegaconf>=2.3",
+    "pandas>=3.0.5",
+    "pydantic>=2.13.4",
+    "pyarrow>=25.0.0",
+    "matplotlib>=3.9",
+    "scienceplots>=2.1.1",
+]
+
+[project.optional-dependencies]
+figures = [
+    "umap-learn==0.5.8",
+]
+
+[project.urls]
+Paper = "https://arxiv.org/abs/2608.21147"
+Repository = "https://github.com/TimeTrace-Labs/Winder"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.2",
+    # Pinned exactly (not >=) -- must match .pre-commit-config.yaml's ruff-pre-commit rev
+    # verbatim, or "uv run ruff format" and the commit hook silently disagree on style. Bump
+    # both together.
+    "ruff==0.16.1",
+    "mypy>=1.10",
+    "pre-commit>=3.7",
+    "scipy-stubs",
+    "pandas-stubs",
+    # Dev-only test oracle for an AUROC unit test -- pins our implementation against
+    # sklearn.metrics.roc_auc_score, including tie handling. Never a runtime dependency.
+    "scikit-learn>=1.5",
+]
+
+[build-system]
+requires = ["uv_build>=0.10.4,<0.11.0"]
+build-backend = "uv_build"
+
+# uv_build defaults to a module at src/<normalized-project-name>/__init__.py, i.e.
+# src/winder_nominal/. The importable package is `winder` (matching the reference repo's import
+# surface, so ported code needs no import rewrites), so the module name is overridden explicitly.
+[tool.uv.build-backend]
+module-name = "winder"
+
+# Scopes lock resolution to the one interpreter this project runs on (pinned in
+# .python-version), matching the reference repo's convention. The `figures` extra now pulls in
+# umap-learn (and transitively numba/llvmlite) -- confirmed this resolves cleanly, in 211ms, with
+# no backtracking against this dependency tree's numpy range; the numba/numpy backtracking issue
+# that motivated a similar pin in the reference repo did not reappear here. Kept regardless, for
+# a single, reproducible resolution target.
+[tool.uv]
+environments = ["python_full_version >= '3.11' and python_full_version < '3.12'"]
+
+# Pinned to the CUDA 12.8 wheel index, not PyPI's default: this machine's driver is 570.211.01
+# (CUDA 12.8), which cannot initialize a cu130-built torch -- torch.cuda.is_available() silently
+# returns False instead of raising, so the mismatch is easy to miss. `explicit = true` means only
+# packages that opt in via [tool.uv.sources] resolve against this index; nothing else on PyPI is
+# affected. Copied verbatim from the reference repo (same machine, same driver).
+[tool.uv.sources]
+torch = [{ index = "pytorch-cu128" }]
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["ANN"]
+"scripts/*" = ["ANN"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
